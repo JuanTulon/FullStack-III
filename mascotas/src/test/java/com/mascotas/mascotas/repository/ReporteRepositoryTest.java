@@ -14,7 +14,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Disabled
+//@Disabled
 @DataJpaTest
 @org.springframework.test.context.ContextConfiguration(classes = com.mascotas.mascotas.MascotasApplication.class)
 class ReporteRepositoryTest {
@@ -38,6 +38,7 @@ class ReporteRepositoryTest {
         theOwner.setPassword("pass");
         theOwner.setTelefono("9112233");
         theOwner.setRol(Usuario.Rol.USUARIO);
+        theOwner.setFechaNacimiento(java.time.LocalDate.of(1992, 8, 25));
         entityManager.persistAndFlush(theOwner);
 
         theMascota = new Mascota();

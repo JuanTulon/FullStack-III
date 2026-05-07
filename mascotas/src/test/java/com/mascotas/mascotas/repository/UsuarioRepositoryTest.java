@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-@Disabled
+//@Disabled
 @DataJpaTest
 @org.springframework.test.context.ContextConfiguration(classes = com.mascotas.mascotas.MascotasApplication.class)
 class UsuarioRepositoryTest {
@@ -39,6 +39,7 @@ class UsuarioRepositoryTest {
         testUser.setPassword("12345");
         testUser.setTelefono("912345678");
         testUser.setRol(Usuario.Rol.USUARIO);
+        testUser.setFechaNacimiento(java.time.LocalDate.of(1990, 5, 15));
 
         // Guarda el usuario directamente en la base de datos en memoria (H2)
         entityManager.persistAndFlush(testUser);
@@ -80,6 +81,7 @@ class UsuarioRepositoryTest {
         testUser2.setRun("19876543-0");
         testUser2.setTelefono("99887766");
         testUser2.setRol(Usuario.Rol.USUARIO);
+        testUser2.setFechaNacimiento(java.time.LocalDate.of(1985, 3, 20));
         entityManager.persistAndFlush(testUser2);
 
         List<Usuario> resultados = usuarioRepository.buscarPorApellido1("Perez");
