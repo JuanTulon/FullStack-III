@@ -72,7 +72,7 @@ public class MascotaService {
     }
 
     public Optional<MascotaDTO> buscarPorChip(String chip) {
-        return mascotaRepository.findByChip_mascota(chip)
+        return mascotaRepository.findByChipMascota(chip)
         .map(this::convertirADto); // Convertimos a DTO para no exponer toda la info
     }
 
@@ -85,7 +85,7 @@ public class MascotaService {
             .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
         
         // 2. Opcional: Validar que el chip no esté registrado ya en el sistema
-        if (request.getChipMascota() != null && mascotaRepository.findByChip_mascota(request.getChipMascota()).isPresent()) {
+        if (request.getChipMascota() != null && mascotaRepository.findByChipMascota(request.getChipMascota()).isPresent()) {
             throw new BusinessRuleException("Ya existe una mascota registrada con este chip.");
         }
         

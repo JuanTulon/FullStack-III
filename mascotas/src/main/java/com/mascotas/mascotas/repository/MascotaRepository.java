@@ -15,6 +15,5 @@ public interface MascotaRepository extends JpaRepository<Mascota, Integer>{
 
     List<Mascota> findByTamaño(Mascota.Tamaño tamaño);
 
-    Optional<Mascota> findByChip_mascota(String chip_mascota);
-
+    Optional<Mascota> findByChipMascota(String chipMascota);
 }

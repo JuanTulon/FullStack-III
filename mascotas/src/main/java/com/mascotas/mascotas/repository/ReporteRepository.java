@@ -22,8 +22,11 @@ public interface ReporteRepository extends JpaRepository<Reporte, Integer> {
     List<Reporte> findByTipoAndEstadoReporte(Reporte.TipoReporte tipo, Reporte.EstadoReporte estado);
 
     // Consulta alternativa: verificar si una mascota tiene un reporte específicamente "ACTIVO"
-    @Query("SELECT COUNT(r) > 0 FROM Reporte r WHERE r.mascota = :mascota AND r.estado_reporte = 'ACTIVO'")
-    boolean existeReporteActivoPorMascota(@Param("mascota") com.mascotas.mascotas.model.Mascota mascota);
+    @Query("SELECT COUNT(r) > 0 FROM Reporte r WHERE r.mascota = :mascota AND r.estadoReporte = :estado")
+    boolean existeReporteActivoPorMascota(
+        @org.springframework.data.repository.query.Param("mascota") com.mascotas.mascotas.model.Mascota mascota, 
+        @org.springframework.data.repository.query.Param("estado") com.mascotas.mascotas.model.Reporte.EstadoReporte estado
+    );
 
     // 3. Consulta JPQL personalizada: Buscar reportes por especie de mascota
     // Esto lo usará el Motor de Coincidencias para no comparar un perro con un gato

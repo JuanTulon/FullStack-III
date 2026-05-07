@@ -112,7 +112,7 @@ public class ReporteService {
                 .orElseThrow(() -> new ResourceNotFoundException("Mascota no encontrada con ID: " + request.getMascotaId()));
         
         // 2. Validar que la mascota no tenga ya un reporte activo en el sistema
-        if (reporteRepository.existeReporteActivoPorMascota(mascota)) {
+        if (reporteRepository.existeReporteActivoPorMascota(mascota, Reporte.EstadoReporte.ACTIVO)) {
             throw new BusinessRuleException("Esta mascota ya tiene un reporte ACTIVO en el sistema.");
         }
 
