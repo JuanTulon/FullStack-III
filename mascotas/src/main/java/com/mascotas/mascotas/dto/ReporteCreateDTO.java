@@ -25,4 +25,6 @@ public class ReporteCreateDTO {
     @NotNull(message = "El id de la mascota es obligatorio.")
     private Integer mascotaId;
 
+    private String urlFoto;
+
 }

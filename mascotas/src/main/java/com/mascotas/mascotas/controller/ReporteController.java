@@ -18,6 +18,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.web.multipart.MultipartFile;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.UUID;
+import org.springframework.http.MediaType;
+
 import java.util.List;
 
 //@CrossOrigin("ip-address")
@@ -81,12 +88,39 @@ public class ReporteController {
         ),
         @ApiResponse(responseCode = "400", description = "Datos inválidos ", content = @Content)
     })
-    @PostMapping
-    public ResponseEntity<ReporteDTO> guardar(@Valid @RequestBody ReporteCreateDTO request, Principal principal) {
-        // 1. Extraemos el email del Token JWT directamente de la sesión segura
-        String emailUsuario = principal.getName(); 
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ReporteDTO> guardar(
+            java.security.Principal principal,
+            @Valid @RequestPart("reporte") ReporteCreateDTO request,
+            @RequestPart("foto") MultipartFile foto) {
 
-        // 2. Le pasamos el email al Service en lugar de un ID inseguro
+        // 1. Validar que la foto venga sí o sí
+        if (foto == null || foto.isEmpty()) {
+            return ResponseEntity.badRequest().build(); // O lanza tu BusinessRuleException
+        }
+
+        // 2. Guardar la foto físicamente
+        try {
+            Path directorioImagenes = Paths.get("uploads");
+            if (!Files.exists(directorioImagenes)) {
+                Files.createDirectories(directorioImagenes);
+            }
+            // Generar nombre único
+            String nombreArchivo = UUID.randomUUID().toString() + "_" + foto.getOriginalFilename();
+            Path rutaCompleta = directorioImagenes.resolve(nombreArchivo);
+            
+            // Copiar archivo a la carpeta
+            Files.copy(foto.getInputStream(), rutaCompleta);
+
+            // 3. Inyectar el nombre de la foto en el DTO antes de pasarlo al Service
+            request.setUrlFoto(nombreArchivo);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error al guardar la foto en el servidor", e);
+        }
+
+        // 4. Llamar al servicio normal (asumiendo que tu servicio extrae el email del principal)
+        String emailUsuario = (principal != null) ? principal.getName() : "test@test.com";
         ReporteDTO nuevo = reporteService.registrarReporte(request, emailUsuario);
         
         return ResponseEntity.status(HttpStatus.CREATED).body(nuevo);

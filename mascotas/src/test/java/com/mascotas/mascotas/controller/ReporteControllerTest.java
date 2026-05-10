@@ -12,11 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.mock.web.MockMultipartFile;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 //@Disabled
@@ -46,13 +46,11 @@ public class ReporteControllerTest {
     private org.springframework.security.authentication.AuthenticationProvider authenticationProvider;
 
     @Test
-    @DisplayName("registrarReporte: Retorna 201 Created con JSON válido")
+    @DisplayName("registrarReporte: Retorna 201 Created con JSON válido y Foto")
     void registrarReporte_Exito() throws Exception {
-        // 1. Creamos un usuario falso (Principal) para evitar el NullPointerException (Error 500)
         java.security.Principal mockPrincipal = org.mockito.Mockito.mock(java.security.Principal.class);
         when(mockPrincipal.getName()).thenReturn("juan@test.com");
 
-        // 2. JSON más completo (Agregué latitud, longitud y usuarioId por si tu DTO los pide)
         String requestJson = """
                 {
                     "mascotaId": 1,
@@ -60,26 +58,31 @@ public class ReporteControllerTest {
                     "estado": "ACTIVO",
                     "descripcion": "Se perdió en el parque",
                     "latitud": -33.456,
-                    "longitud": -70.654,
-                    "usuarioId": 1
+                    "longitud": -70.654
                 }
                 """;
+
+        // Creamos una foto falsa en memoria
+        MockMultipartFile fotoMock = new MockMultipartFile(
+                "foto", "perrito.jpg", "image/jpeg", "bytes de imagen falsa".getBytes()
+        );
+
+        // Convertimos nuestro JSON en un "archivo" multipart para poder enviarlo junto a la foto
+        MockMultipartFile reporteMock = new MockMultipartFile(
+                "reporte", "", "application/json", requestJson.getBytes()
+        );
 
         ReporteDTO response = new ReporteDTO();
         response.setIdReporte(100);
         response.setTipo("PERDIDO");
-        response.setEstado("ACTIVO");
 
-        // Simulamos la respuesta del servicio (usando any() para evitar problemas de tipos)
         when(reporteService.registrarReporte(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.anyString()))
                 .thenReturn(response);
 
-        // 3. Ejecutamos la petición con el JSON, el Principal y los Rayos X
-        mockMvc.perform(post("/api/reporte")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestJson)
-                .principal(mockPrincipal)) // <--- Inyectamos el usuario falso
-                .andDo(org.springframework.test.web.servlet.result.MockMvcResultHandlers.print()) // <--- RAYOS X ACTIVADOS
+        mockMvc.perform(multipart("/api/reporte")
+                .file(fotoMock)
+                .file(reporteMock)
+                .principal(mockPrincipal))
                 .andExpect(status().isCreated());
     }
 
@@ -89,9 +92,8 @@ public class ReporteControllerTest {
         ReporteCreateDTO request = new ReporteCreateDTO();
         // Enviando DTO vacío para que Spring lo bloquee
 
-        mockMvc.perform(post("/api/reporte")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+        mockMvc.perform(multipart("/api/reporte")
+                .file(new MockMultipartFile("reporte", "", "application/json", objectMapper.writeValueAsString(request).getBytes())))
                 .andExpect(status().isBadRequest());
     }
 }

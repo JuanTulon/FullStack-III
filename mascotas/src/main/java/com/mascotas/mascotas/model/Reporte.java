@@ -33,6 +33,11 @@ public class Reporte {
     @Schema(description = "Identificador único del reporte.", example = "1")
     private Integer idReporte;
 
+    @Column(name = "url_foto", nullable = true, length = 255)
+    @Schema(description = "URL de la foto del reporte", example = "http://example.com/foto.jpg")
+    private String urlFoto;
+    //Le pusimos nullable = true porque si por alguna razón falla la subida, al menos el reporte no rompe la base de datos, aunque en el controlador exijamos que la envíen.
+
     @Column(nullable = false, length = 50)
     @Schema(description = "Tipo de reporte", example = "ENCONTRADO")
     private TipoReporte tipo;
