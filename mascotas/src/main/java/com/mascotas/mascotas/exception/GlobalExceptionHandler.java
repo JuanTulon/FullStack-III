@@ -76,7 +76,7 @@ public class GlobalExceptionHandler {
                 .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
                 // A diferencia de los otros métodos, aquí escondemos el mensaje real (ex.getMessage()) por seguridad (para no filtrar detalles de base de datos a un atacante)
                 // y ponemos un mensaje genérico tranquilizador
-                .message("Ocurrió un error interno inesperado. Contacte a soporte.")
+                .message("ERROR REAL: " + ex.getClass().getSimpleName() + " - " + ex.getMessage())
                 // Opcional para debug: .message(ex.getMessage()) 
                 // Toma la ruta solicitada donde de manera fortuita se rompió la aplicación y la limpia
                 .path(request.getDescription(false).replace("uri=", ""))

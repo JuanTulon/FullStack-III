@@ -81,4 +81,11 @@ class ReporteRepositoryTest {
         assertThat(match).isNotEmpty();
         assertThat(match.get(0).getMascota().getChipMascota()).isEqualTo("CHIP99");
     }
+
+    @Test
+    @DisplayName("existeReporteActivoPorMascota: Debería retornar true si hay un reporte activo")
+    void existeReporteActivoPorMascota_RetornaTrue() {
+        boolean existe = reporteRepository.existeReporteActivoPorMascota(theMascota, Reporte.EstadoReporte.ACTIVO);
+        assertThat(existe).isTrue();
+    }
 }
