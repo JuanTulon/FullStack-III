@@ -1,6 +1,9 @@
 package com.mascotas.mascotas.service;
 
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.Authentication;
 
 import com.mascotas.mascotas.dto.UsuarioCreateDTO;
 import com.mascotas.mascotas.dto.UsuarioDTO;
@@ -57,7 +60,7 @@ public class UsuarioService {
     @Transactional
     public UsuarioDTO registrarUsuario(UsuarioCreateDTO request) {
 
-        // 1. Validación de RUT completo
+        //Validación de RUT completo
         if (!RutUtils.validarRut(request.getRun())) {
             throw new BusinessRuleException("El RUN ingresado no es válido.");
         }
@@ -71,21 +74,57 @@ public class UsuarioService {
             throw new BusinessRuleException("El correo ya está en uso.");
         }
 
-        // 3. Crear nueva entidad
+        // 2. Crear la entidad y mapear datos básicos
         Usuario usuario = new Usuario();
-        usuario.setRun(request.getRun().toUpperCase());
+        usuario.setRun(request.getRun());
         usuario.setNombre(request.getNombre());
         usuario.setApellido1(request.getApellido1());
         usuario.setApellido2(request.getApellido2());
         usuario.setEmail(request.getEmail());
         usuario.setTelefono(request.getTelefono());
         usuario.setFechaNacimiento(request.getFechaNacimiento());
-        usuario.setRol(Usuario.Rol.USUARIO); // Rol por defecto al registrarse
-
-        // 4. Encriptar contraseña y guardar
+        
+        // Encriptar contraseña
         usuario.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        return convertirADto(usuarioRepository.save(usuario));
+        // --- 3. LÓGICA DE ROLES SEGURA ---
+        String rolSolicitado = request.getRol();
+
+        // Caso A: No envía rol o pide ser USUARIO normal
+        if (rolSolicitado == null || rolSolicitado.trim().isEmpty() || rolSolicitado.equalsIgnoreCase("USUARIO")) {
+            usuario.setRol(Usuario.Rol.USUARIO);
+        } 
+        // Caso B: Intenta registrarse como ADMIN
+        else if (rolSolicitado.equalsIgnoreCase("ADMIN")) {
+            
+            // Verificamos quién está haciendo la petición
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+            // Si no hay nadie logueado (registro público) o es un usuario anónimo
+            if (auth == null || !auth.isAuthenticated() || auth instanceof AnonymousAuthenticationToken) {
+                throw new BusinessRuleException("No tienes permisos para crear una cuenta de Administrador.");
+            }
+
+            // Si hay alguien logueado, verificamos su rol en la BD
+            String emailLogueado = auth.getName();
+            Usuario usuarioEjecutor = usuarioRepository.findByEmail(emailLogueado)
+                    .orElseThrow(() -> new ResourceNotFoundException("Usuario actual no encontrado"));
+
+            if (usuarioEjecutor.getRol() != Usuario.Rol.ADMIN) {
+                throw new BusinessRuleException("Seguridad: Solo un Administrador puede asignar el rol ADMIN a otros.");
+            }
+
+            // Si pasó el check, se le asigna el rol
+            usuario.setRol(Usuario.Rol.ADMIN);
+        } 
+        // Caso C: Envía cualquier otra cosa rara
+        else {
+            usuario.setRol(Usuario.Rol.USUARIO);
+        }
+
+        // 4. Guardar y retornar DTO
+        Usuario guardado = usuarioRepository.save(usuario);
+        return convertirADto(guardado);
     }
 
     // --- ACTUALIZACIÓN ---
@@ -132,19 +171,17 @@ public class UsuarioService {
     }
     
     // MÉTODO AUXILIAR PARA LA SEGURIDAD
-    private UsuarioDTO convertirADto(Usuario usuario) {
+    private UsuarioDTO convertirADto(Usuario u) {
         UsuarioDTO dto = new UsuarioDTO();
-        dto.setIdUsuario(usuario.getIdUsuario());
-        dto.setNombre(usuario.getNombre());
-        dto.setApellido1(usuario.getApellido1());
-        dto.setApellido2(usuario.getApellido2());
-        if (usuario.getRol() != null) {
-            dto.setRol(usuario.getRol().name());
-        }
-        dto.setEmail(usuario.getEmail());
-        dto.setTelefono(usuario.getTelefono());
-        dto.setRun(usuario.getRun());
-        dto.setFechaNacimiento(usuario.getFechaNacimiento());
+        dto.setIdUsuario(u.getIdUsuario());
+        dto.setRun(u.getRun());
+        dto.setNombre(u.getNombre());
+        dto.setApellido1(u.getApellido1());
+        dto.setApellido2(u.getApellido2());
+        dto.setEmail(u.getEmail());
+        dto.setTelefono(u.getTelefono());
+        dto.setFechaNacimiento(u.getFechaNacimiento());
+        dto.setRol(u.getRol().name());
         return dto;
     }
 }

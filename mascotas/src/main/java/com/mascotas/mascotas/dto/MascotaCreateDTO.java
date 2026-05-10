@@ -7,7 +7,6 @@ import lombok.Data;
 @Data
 public class MascotaCreateDTO {
 
-    @NotBlank(message = "El chip de la mascota es obligatorio.")
     private String chipMascota;
 
     @NotBlank(message = "El nombre de la mascota es obligatorio.")
