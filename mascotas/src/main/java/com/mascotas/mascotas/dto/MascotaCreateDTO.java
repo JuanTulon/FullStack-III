@@ -27,6 +27,4 @@ public class MascotaCreateDTO {
     @NotBlank(message = "El color de la mascota es obligatorio.")
     private String color;
 
-    @NotNull(message = "El id del usuario es obligatorio.")
-    private Integer usuarioId;
 }

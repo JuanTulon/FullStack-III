@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-MascotasApplication<mascotas>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.mascotas.mascotas.MascotasApplication",
+            "projectName": "mascotas",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

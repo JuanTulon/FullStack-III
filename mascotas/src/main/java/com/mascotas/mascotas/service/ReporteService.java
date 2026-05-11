@@ -190,6 +190,7 @@ public class ReporteService {
         if (reporte.getUsuario() != null) {
             dto.setNombreContacto(reporte.getUsuario().getNombre());
             dto.setTelefonoContacto(reporte.getUsuario().getTelefono());
+            dto.setUsuarioId(reporte.getUsuario().getIdUsuario());
         }
 
         //mascota

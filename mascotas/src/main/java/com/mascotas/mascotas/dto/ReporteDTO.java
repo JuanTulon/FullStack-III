@@ -11,7 +11,7 @@ public class ReporteDTO {
     private String estado;
     private LocalDateTime fecha;
     private String descripcion;
-    
+    private Integer usuarioId;
     // Solo enviamos las coordenadas para el mapa
     private Double latitud;
     private Double longitud;
