@@ -80,24 +80,29 @@ Se implementó lógica de validación en la capa de `@Service` para asegurar que
 
 ---
 
-📖 Documentación Interactiva (Swagger)
+## 📖 Documentación Interactiva (Swagger)
+
 La API está completamente documentada bajo el estándar OpenAPI 3. Una vez iniciada la aplicación, acceda a:
 
-👉 Swagger UI: http://localhost:8080/swagger-ui.html
+👉 **Swagger UI:** [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
 
-Nota: Swagger ha sido configurado para permitir el envío de tokens Bearer en las cabeceras de prueba.
+*Nota: Swagger ha sido configurado para permitir el envío de tokens Bearer en las cabeceras de prueba.*
 
-🧪 Pruebas Automáticas (Testing)
+---
+
+## 🧪 Pruebas Automáticas (Testing)
+
 El proyecto cuenta con una cobertura integral de tests dividida en:
 
-Unit Tests: Validación de lógica pura en servicios.
+* **Unit Tests:** Validación de lógica pura en servicios.
+* **Repository Tests:** Pruebas de integración con base de datos H2 para validar queries de Spring Data JPA.
+* **Controller Tests:** Uso de `MockMvc` para simular peticiones HTTP y validar el flujo de seguridad.
 
-Repository Tests: Pruebas de integración con base de datos H2 para validar queries de Spring Data JPA.
+---
 
-Controller Tests: Uso de MockMvc para simular peticiones HTTP y validar el flujo de seguridad.
+## 📂 Estructura del Proyecto
 
-📂 Estructura del Proyecto
-
+```text
 src/main/java/com/mascotas/mascotas/
 ├── config/             # Configuraciones globales (Swagger, Web, CORS)
 ├── controller/         # Adaptadores de entrada (REST Controllers)
