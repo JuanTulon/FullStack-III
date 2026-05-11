@@ -23,5 +23,5 @@ public class ReporteDTO {
     // Datos de la mascota simplificados
     private String nombreMascota;
     private String razaMascota;
-    //private String urlFoto;
+    private String urlFoto;
 }

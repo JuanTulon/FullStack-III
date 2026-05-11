@@ -1,5 +1,6 @@
 package com.mascotas.mascotas.repository;
 
+import com.mascotas.mascotas.model.Mascota;
 import com.mascotas.mascotas.model.Reporte;
 import org.springframework.data.jpa.repository.JpaRepository;//import que ofrece los métodos CRUD
 import org.springframework.data.jpa.repository.Query;//permite escribir consultas personalizadas
@@ -30,6 +31,6 @@ public interface ReporteRepository extends JpaRepository<Reporte, Integer> {
 
     // 3. Consulta JPQL personalizada: Buscar reportes por especie de mascota
     // Esto lo usará el Motor de Coincidencias para no comparar un perro con un gato
-    @Query("SELECT r FROM Reporte r WHERE r.mascota.especie = :especie AND r.tipo = :tipo")
-    List<Reporte> buscarPorEspecieYTipo(@Param("especie") String especie, @Param("tipo") Reporte.TipoReporte tipo);
+    @Query("SELECT r FROM Reporte r JOIN r.mascota m WHERE m.especie = :especie AND r.tipo = :tipo")
+    List<Reporte> buscarPorEspecieYTipo(@Param("especie") Mascota.Especie especie, @Param("tipo") Reporte.TipoReporte tipo);
 }

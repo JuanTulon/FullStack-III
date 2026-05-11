@@ -145,10 +145,6 @@ public class UsuarioService {
         usuario.setApellido2(request.getApellido2());
         usuario.setEmail(request.getEmail());
         usuario.setTelefono(request.getTelefono());
-        if (request.getRol() != null) {
-             usuario.setRol(Usuario.Rol.valueOf(request.getRol().toUpperCase()));
-        }
-        
         
         // El email solo se cambia si es distinto y no existe otro igual
         if (!usuario.getEmail().equals(request.getEmail()) && 
@@ -183,5 +179,19 @@ public class UsuarioService {
         dto.setFechaNacimiento(u.getFechaNacimiento());
         dto.setRol(u.getRol().name());
         return dto;
+    }
+
+    //metodo para asignar rol admin siendo administrador
+    @Transactional
+    public UsuarioDTO asignarRolAdmin(Integer idUsuario) {
+        // 1. Buscamos al usuario que queremos promover
+        Usuario usuario = usuarioRepository.findById(idUsuario)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con ID: " + idUsuario));
+        
+        // 2. Cambiamos el rol a ADMIN
+        usuario.setRol(Usuario.Rol.ADMIN);
+        
+        // 3. Guardamos y retornamos el DTO actualizado
+        return convertirADto(usuarioRepository.save(usuario));
     }
 }

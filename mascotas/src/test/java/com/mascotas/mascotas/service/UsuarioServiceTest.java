@@ -86,7 +86,6 @@ public class UsuarioServiceTest {
         UsuarioUpdateDTO updateDTO = new UsuarioUpdateDTO();
         updateDTO.setNombre("Juan Modificado");
         updateDTO.setEmail("juan@test.com"); // Mantiene el mismo email
-        updateDTO.setRol("USUARIO");
 
         when(usuarioRepository.findByEmail("juan@test.com")).thenReturn(Optional.of(usuarioSimulado));
         when(usuarioRepository.save(any(Usuario.class))).thenReturn(usuarioSimulado);

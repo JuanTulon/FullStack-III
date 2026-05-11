@@ -44,7 +44,7 @@ public class ReporteController {
                 examples = @ExampleObject(value = """
                     [
                         {
-                            "id_reporte": 1,
+                            "idReporte": 1,
                             "tipo": "PERDIDO",
                             "estado": "ABIERTO",
                             "fecha": "2023-09-20T14:30:00",
@@ -52,7 +52,7 @@ public class ReporteController {
                             "latitud": -33.4489,
                             "longitud": -70.6693,
                             "nombreContacto": "Juan Pérez",
-                            "telefonoContacto": 912345678,
+                            "telefonoContacto": "912345678",
                             "nombreMascota": "Bobby",
                             "razaMascota": "Poodle"
                         }
@@ -80,8 +80,7 @@ public class ReporteController {
                         "descripcion": "Reporte de mascota perdida",
                         "latitud": -33.4489,
                         "longitud": -70.6693,
-                        "mascotaId": 1,
-                        "usuarioId": 1
+                        "mascotaId": 1
                     }
                 """)
             )
@@ -146,7 +145,7 @@ public class ReporteController {
                 examples = @ExampleObject(value = """
                     [
                         {
-                            "id_reporte": 1,
+                            "idReporte": 1,
                             "tipo": "PERDIDO",
                             "estado": "ABIERTO",
                             "fecha": "2023-09-20T14:30:00",
@@ -154,7 +153,7 @@ public class ReporteController {
                             "latitud": -33.4489,
                             "longitud": -70.6693,
                             "nombreContacto": "Juan Pérez",
-                            "telefonoContacto": 912345678,
+                            "telefonoContacto": "912345678",
                             "nombreMascota": "Bobby",
                             "razaMascota": "Poodle"
                         }
@@ -171,22 +170,22 @@ public class ReporteController {
     }
 
     //BUSCAR POR TIPO Y ESTADO
-    @Operation(summary = "Buscar por tipo y estado de reporte", description = "Busca reportes por tipo (ENCONTRADO, PERDIDO, AVISTADA) y estado (ABIERTO, CERRADO).", responses = {
+    @Operation(summary = "Buscar por tipo y estado de reporte", description = "Busca reportes por tipo (ENCONTRADO, PERDIDO, AVISTADA) y estado (ACTIVO, RESUELTO, CANCELADO).", responses = {
         @ApiResponse(responseCode = "200", description = "Lista encontrada",
             content = @Content(mediaType = "application/json",
                 schema = @Schema(implementation = ReporteDTO.class),
                 examples = @ExampleObject(value = """
                     [
                         {
-                            "id_reporte": 1,
+                            "idReporte": 1,
                             "tipo": "PERDIDO",
-                            "estado": "ABIERTO",
+                            "estado": "ACTIVO",
                             "fecha": "2023-09-20T14:30:00",
                             "descripcion": "Reporte de mascota perdida",
                             "latitud": -33.4489,
                             "longitud": -70.6693,
                             "nombreContacto": "Juan Pérez",
-                            "telefonoContacto": 912345678,
+                            "telefonoContacto": "912345678",
                             "nombreMascota": "Bobby",
                             "razaMascota": "Poodle"
                         }
@@ -212,7 +211,7 @@ public class ReporteController {
                         {
                             "id_reporte": 1,
                             "tipo": "PERDIDO",
-                            "estado": "ABIERTO",
+                            "estado": "ACTIVO",
                             "fecha": "2023-09-20T14:30:00",
                             "descripcion": "Reporte de mascota perdida",
                             "latitud": -33.4489,

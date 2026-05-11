@@ -63,21 +63,25 @@ public class ReporteService {
         }
     }
 
-    public List<ReporteDTO> buscarPorEspecieYTipo(String especie, String tipoString) {
-        if (especie == null || especie.trim().isEmpty()) {
+    public List<ReporteDTO> buscarPorEspecieYTipo(String especieString, String tipoString) {
+        if (especieString == null || especieString.trim().isEmpty()) {
             throw new BusinessRuleException("El parámetro de especie es obligatorio.");
         }
         if (tipoString == null || tipoString.trim().isEmpty()) {
             throw new BusinessRuleException("El parámetro de tipo de reporte es obligatorio.");
         }
         try {
+            // Convertimos AMBOS Strings a sus respectivos Enums antes de consultar la BD
             Reporte.TipoReporte tipoEnum = Reporte.TipoReporte.valueOf(tipoString.toUpperCase());
-            return reporteRepository.buscarPorEspecieYTipo(especie, tipoEnum)
+            Mascota.Especie especieEnum = Mascota.Especie.valueOf(especieString.toUpperCase());
+            
+            // Le pasamos los Enums al repositorio
+            return reporteRepository.buscarPorEspecieYTipo(especieEnum, tipoEnum)
             .stream()
-            .map(this::convertirADto) // Convertimos a DTO para no exponer toda la info
+            .map(this::convertirADto)
             .toList();
         } catch (IllegalArgumentException e) {
-            throw new BusinessRuleException("Tipo de reporte no válido. Las opciones son: ENCONTRADO, PERDIDO, AVISTADA.");
+            throw new BusinessRuleException("Especie o Tipo no válido. Especies: PERRO, GATO, OTRO. Tipos: ENCONTRADO, PERDIDO, AVISTADA.");
         }
     }
 
@@ -123,6 +127,8 @@ public class ReporteService {
         reporte.setDescripcion(request.getDescripcion());
         reporte.setLatitud(request.getLatitud());
         reporte.setLongitud(request.getLongitud());
+
+        reporte.setUrlFoto(request.getUrlFoto());
         
         reporte.setUsuario(usuario);
         reporte.setMascota(mascota);
@@ -190,7 +196,7 @@ public class ReporteService {
         if(reporte.getMascota() != null) {
             dto.setNombreMascota(reporte.getMascota().getNombreMascota());
             dto.setRazaMascota(reporte.getMascota().getRaza());
-            //dto.setUrlFoto(reporte.getMascota().getUrlFoto()); agregar a futuro
+            dto.setUrlFoto(reporte.getUrlFoto());
         }
 
         return dto;

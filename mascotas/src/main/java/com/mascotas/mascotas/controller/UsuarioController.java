@@ -36,13 +36,13 @@ public class UsuarioController {
                 examples = @ExampleObject(value = """
                     [
                         {
-                            "id_usuario": 1,
+                            "idUsuario": 1,
                             "run": "11111111-1",
                             "nombre": "Juan",
                             "apellido1": "Pérez",
                             "apellido2": "González",
                             "email": "juan.perez@example.com",
-                            "telefono": 987654321,
+                            "telefono": "987654321",
                             "fechaNacimiento": "15-05-1990",
                             "rol": "USUARIO"
                         }
@@ -71,8 +71,9 @@ public class UsuarioController {
                         "apellido2": "Torres",
                         "fechaNacimiento": "20-10-1995",
                         "email": "maria.lopez@example.com",
-                        "telefono": 912345678,
-                        "password": "PasswordSegura123"
+                        "telefono": "912345678",
+                        "password": "PasswordSegura123",
+                        "rol": "USUARIO"
                     }
                 """)
             )
@@ -118,8 +119,7 @@ public class UsuarioController {
                         "apellido1": "López",
                         "apellido2": "Torres",
                         "email": "maria.nueva@example.com",
-                        "telefono": 555666777,
-                        "rol": "USUARIO"
+                        "telefono": "555666777"
                     }
                 """)
             )
@@ -141,5 +141,33 @@ public class UsuarioController {
     public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
         usuarioService.eliminarUsuario(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Promover usuario a ADMIN (Requiere rol ADMIN)", responses = {
+        @ApiResponse(responseCode = "200", description = "Usuario promovido a ADMIN",
+            content = @Content(mediaType = "application/json",
+                schema = @Schema(implementation = UsuarioDTO.class),
+                examples = @ExampleObject(name = "Usuario Promovido", value = """
+                    {
+                        "idUsuario": 2,
+                        "run": "87654321-9",
+                        "nombre": "Carlos",
+                        "apellido1": "Sánchez",
+                        "apellido2": "Díaz",
+                        "email": "carlos.sanchez@example.com",
+                        "telefono": "998877665",
+                        "fechaNacimiento": "15-05-1990",
+                        "rol": "ADMIN"
+                    }
+                """)
+            )
+        ),
+        @ApiResponse(responseCode = "403", description = "Acceso denegado (Requiere token de ADMIN)", content = @Content),
+        @ApiResponse(responseCode = "404", description = "Usuario no encontrado", content = @Content)
+    })
+    @PutMapping("/{id}/rol-admin")
+    public ResponseEntity<UsuarioDTO> asignarAdmin(@PathVariable Integer id) {
+        UsuarioDTO actualizado = usuarioService.asignarRolAdmin(id);
+        return ResponseEntity.ok(actualizado);
     }
 }

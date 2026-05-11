@@ -36,9 +36,9 @@ public class MascotaController {
                 examples = @ExampleObject(value = """
                     [
                         {
-                            "id_mascota": 1,
-                            "chip_mascota": "123456789012345",
-                            "nombre_mascota": "Bobby",
+                            "idMascota": 1,
+                            "chipMascota": "123456789012345",
+                            "nombreMascota": "Bobby",
                             "especie": "PERRO",
                             "raza": "Poodle",
                             "sexo": "Macho",
@@ -64,8 +64,8 @@ public class MascotaController {
                 schema = @Schema(implementation = MascotaDTO.class),
                 examples = @ExampleObject(name = "Mascota Nueva", value = """
                     {
-                        "chip_mascota": "123456789012345",
-                        "nombre_mascota": "Bobby",
+                        "chipMascota": "123456789012345",
+                        "nombreMascota": "Bobby",
                         "especie": "PERRO",
                         "raza": "Poodle",
                         "sexo": "Macho",

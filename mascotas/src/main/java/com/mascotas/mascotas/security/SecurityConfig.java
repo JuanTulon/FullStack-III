@@ -66,12 +66,15 @@ public class SecurityConfig {
                 //2. Rutas de Lectura Públicas (Ver mapa y mascotas)
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/reporte/**").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/mascota/**").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/uploads/**").permitAll()
+
                 
                 //3. Documentación Swagger
-                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
+                .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                 
                 //4. Rutas Restringidas a ADMIN
                 .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/usuarios/**").hasRole("ADMIN")
+                .requestMatchers(org.springframework.http.HttpMethod.PUT, "/api/usuarios/*/rol-admin").hasRole("ADMIN")
 
                 //5. Todo lo demás es Privado (Requiere Token)
                 .anyRequest().authenticated()

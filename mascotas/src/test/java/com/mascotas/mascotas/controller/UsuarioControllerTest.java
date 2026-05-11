@@ -21,6 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
@@ -60,7 +61,8 @@ public class UsuarioControllerTest {
                     "email": "juan@test.com",
                     "password": "123456",
                     "telefono": "987654321",
-                    "fechaNacimiento": "01-01-1990"
+                    "fechaNacimiento": "01-01-1990",
+                    "rol": "USUARIO"
                 }
                 """;
 
@@ -69,8 +71,6 @@ public class UsuarioControllerTest {
         response.setNombre("Juan");
         response.setEmail("juan@test.com");
 
-        // IMPORTANTE: Asegúrate de tener este import en la parte superior:
-        // import static org.mockito.ArgumentMatchers.any;
         when(usuarioService.registrarUsuario(any(UsuarioCreateDTO.class))).thenReturn(response);
 
         // Ejecutar la petición HTTP POST simulada y verificar resultados
@@ -96,5 +96,23 @@ public class UsuarioControllerTest {
                 .content(requestIncompleto))
                 .andDo(print()) // <--- MAGIA AQUÍ: Esto imprimirá el error real en la consola
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("asignarAdmin: Retorna 200 OK si un ADMIN promueve a otro usuario")
+    void asignarAdmin_Exito() throws Exception {
+        // Simulamos un DTO de respuesta
+        UsuarioDTO response = new UsuarioDTO();
+        response.setRol("ADMIN");
+        response.setEmail("nuevoadmin@test.com");
+
+        // Mockeamos el servicio
+        when(usuarioService.asignarRolAdmin(any(Integer.class))).thenReturn(response);
+
+        // Ejecutamos la petición PUT
+        mockMvc.perform(put("/api/usuarios/1/rol-admin")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.rol").value("ADMIN"));
     }
 }
