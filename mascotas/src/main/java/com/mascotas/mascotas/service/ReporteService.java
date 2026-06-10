@@ -128,7 +128,7 @@ public class ReporteService {
         reporte.setLatitud(request.getLatitud());
         reporte.setLongitud(request.getLongitud());
 
-        reporte.setUrlFoto(request.getUrlFoto());
+        reporte.setUrlsFotos(request.getUrlsFotos());
         
         reporte.setUsuario(usuario);
         reporte.setMascota(mascota);
@@ -196,8 +196,8 @@ public class ReporteService {
         if(reporte.getMascota() != null) {
             dto.setNombreMascota(reporte.getMascota().getNombreMascota());
             dto.setRazaMascota(reporte.getMascota().getRaza());
-            dto.setUrlFoto(reporte.getUrlFoto());
         }
+        dto.setUrlsFotos(reporte.getUrlsFotos());
 
         return dto;
     }

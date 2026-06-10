@@ -1,6 +1,8 @@
 package com.mascotas.mascotas.model;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.ArrayList;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -33,10 +35,11 @@ public class Reporte {
     @Schema(description = "Identificador único del reporte.", example = "1")
     private Integer idReporte;
 
-    @Column(name = "url_foto", nullable = true, length = 255)
-    @Schema(description = "URL de la foto del reporte", example = "http://example.com/foto.jpg")
-    private String urlFoto;
-    //Le pusimos nullable = true porque si por alguna razón falla la subida, al menos el reporte no rompe la base de datos, aunque en el controlador exijamos que la envíen.
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "reporte_fotos", joinColumns = @JoinColumn(name = "id_reporte"))
+    @Column(name = "url_foto")
+    @Schema(description = "URLs de las fotos del reporte")
+    private List<String> urlsFotos = new ArrayList<>();
 
     @Column(nullable = false, length = 50)
     @Schema(description = "Tipo de reporte", example = "ENCONTRADO")

@@ -84,8 +84,8 @@ public class MascotaService {
     Usuario dueño = usuarioRepository.findByEmail(emailUsuario)
             .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
         
-        // 2. Opcional: Validar que el chip no esté registrado ya en el sistema
-        if (request.getChipMascota() != null && mascotaRepository.findByChipMascota(request.getChipMascota()).isPresent()) {
+        // 2. Opcional: Validar que el chip no esté registrado ya en el sistema (solo si no es nulo y no está vacío)
+        if (request.getChipMascota() != null && !request.getChipMascota().trim().isEmpty() && mascotaRepository.findByChipMascota(request.getChipMascota()).isPresent()) {
             throw new BusinessRuleException("Ya existe una mascota registrada con este chip.");
         }
         

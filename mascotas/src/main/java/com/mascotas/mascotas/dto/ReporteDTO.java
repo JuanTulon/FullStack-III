@@ -2,6 +2,7 @@ package com.mascotas.mascotas.dto;
 
 import lombok.Data;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 public class ReporteDTO {
@@ -23,5 +24,5 @@ public class ReporteDTO {
     // Datos de la mascota simplificados
     private String nombreMascota;
     private String razaMascota;
-    private String urlFoto;
+    private List<String> urlsFotos;
 }

@@ -32,7 +32,7 @@ public class Mascota {
     private Integer idMascota;
 
 
-    @Column(unique = true, nullable = true, length = 30)
+    @Column(unique = false, nullable = true, length = 30)
     @Schema(description = "chip de la mascota.", example = "123456789012345678")
     private String chipMascota;
 
