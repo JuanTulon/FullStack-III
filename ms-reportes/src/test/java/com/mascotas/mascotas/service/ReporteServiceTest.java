@@ -4,12 +4,9 @@ import com.mascotas.mascotas.dto.ReporteCreateDTO;
 import com.mascotas.mascotas.dto.ReporteDTO;
 import com.mascotas.mascotas.dto.ReporteUpdateDTO;
 import com.mascotas.mascotas.exception.BusinessRuleException;
-import com.mascotas.mascotas.model.Mascota;
 import com.mascotas.mascotas.model.Reporte;
-import com.mascotas.mascotas.model.Usuario;
-import com.mascotas.mascotas.repository.MascotaRepository;
 import com.mascotas.mascotas.repository.ReporteRepository;
-import com.mascotas.mascotas.repository.UsuarioRepository;
+import com.mascotas.mascotas.security.CustomUserDetails;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,6 +14,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -33,34 +33,18 @@ public class ReporteServiceTest {
     @Mock
     private ReporteRepository reporteRepository;
 
-    @Mock
-    private UsuarioRepository usuarioRepository;
-
-    @Mock
-    private MascotaRepository mascotaRepository;
-
     @InjectMocks
     private ReporteService reporteService;
 
-    private Usuario dueno;
-    private Mascota mascota;
     private Reporte reporteSimulado;
     private ReporteCreateDTO createDTO;
 
     @BeforeEach
     void setUp() {
-        dueno = new Usuario();
-        dueno.setIdUsuario(1);
-        dueno.setEmail("dueno@test.com");
-
-        mascota = new Mascota();
-        mascota.setIdMascota(5);
-        mascota.setNombreMascota("Rex");
-
         reporteSimulado = new Reporte();
         reporteSimulado.setIdReporte(100);
-        reporteSimulado.setUsuario(dueno);
-        reporteSimulado.setMascota(mascota);
+        reporteSimulado.setUsuarioId(1);
+        reporteSimulado.setMascotaId(5);
         reporteSimulado.setTipo(Reporte.TipoReporte.PERDIDO);
         reporteSimulado.setEstadoReporte(Reporte.EstadoReporte.ACTIVO);
         reporteSimulado.setFechaReporte(LocalDateTime.now());
@@ -72,13 +56,23 @@ public class ReporteServiceTest {
         createDTO.setDescripcion("Se perdió ayer");
     }
 
+    private void mockSecurityContext(int idUsuario) {
+        Authentication authentication = mock(Authentication.class);
+        CustomUserDetails userDetails = mock(CustomUserDetails.class);
+        lenient().when(userDetails.getIdUsuario()).thenReturn(idUsuario);
+        lenient().when(authentication.getPrincipal()).thenReturn(userDetails);
+        
+        SecurityContext securityContext = mock(SecurityContext.class);
+        lenient().when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+    }
+
     @Test
     @DisplayName("registrarReporte: Exito si la mascota NO tiene reporte activo")
     void registrarReporte_Exito() {
-        when(usuarioRepository.findByEmail("dueno@test.com")).thenReturn(Optional.of(dueno));
-        when(mascotaRepository.findById(5)).thenReturn(Optional.of(mascota));
+        mockSecurityContext(1);
         // Aquí simulamos que NO existe un reporte activo
-        when(reporteRepository.existeReporteActivoPorMascota(eq(mascota), eq(Reporte.EstadoReporte.ACTIVO))).thenReturn(false);
+        when(reporteRepository.existeReporteActivoPorMascotaId(eq(5), eq(Reporte.EstadoReporte.ACTIVO))).thenReturn(false);
         when(reporteRepository.save(any(Reporte.class))).thenReturn(reporteSimulado);
 
         ReporteDTO resultado = reporteService.registrarReporte(createDTO, "dueno@test.com");
@@ -90,10 +84,9 @@ public class ReporteServiceTest {
     @Test
     @DisplayName("registrarReporte: Falla si la mascota YA TIENE un reporte activo")
     void registrarReporte_FallaReporteExistente() {
-        when(usuarioRepository.findByEmail("dueno@test.com")).thenReturn(Optional.of(dueno));
-        when(mascotaRepository.findById(5)).thenReturn(Optional.of(mascota));
+        mockSecurityContext(1);
         // Aquí simulamos que SÍ existe un reporte activo, debe saltar la BusinessRuleException
-        when(reporteRepository.existeReporteActivoPorMascota(eq(mascota), eq(Reporte.EstadoReporte.ACTIVO))).thenReturn(true);
+        when(reporteRepository.existeReporteActivoPorMascotaId(eq(5), eq(Reporte.EstadoReporte.ACTIVO))).thenReturn(true);
 
         BusinessRuleException ex = assertThrows(BusinessRuleException.class, 
             () -> reporteService.registrarReporte(createDTO, "dueno@test.com"));
@@ -105,6 +98,7 @@ public class ReporteServiceTest {
     @Test
     @DisplayName("actualizarReporte: Falla por Zero Trust (Intruso)")
     void actualizarReporte_FallaZeroTrust() {
+        mockSecurityContext(2); // Hacker autenticado
         when(reporteRepository.findById(100)).thenReturn(Optional.of(reporteSimulado));
         ReporteUpdateDTO updateDTO = new ReporteUpdateDTO();
 

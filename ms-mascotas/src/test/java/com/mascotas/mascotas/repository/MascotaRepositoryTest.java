@@ -1,21 +1,18 @@
 package com.mascotas.mascotas.repository;
 
 import com.mascotas.mascotas.model.Mascota;
-import com.mascotas.mascotas.model.Usuario;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.junit.jupiter.api.Disabled;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-//@Disabled
 @DataJpaTest
 @org.springframework.test.context.ContextConfiguration(classes = com.mascotas.mascotas.MascotasApplication.class)
 class MascotaRepositoryTest {
@@ -26,22 +23,8 @@ class MascotaRepositoryTest {
     @Autowired
     private TestEntityManager entityManager;
 
-    private Usuario theOwner;
-
     @BeforeEach
     void setUp() {
-        // Para probar mascotas, necesitamos un dueño porque está como "nullable = false"
-        theOwner = new Usuario();
-        theOwner.setNombre("Dueño");
-        theOwner.setApellido1("Dueñez");
-        theOwner.setRun("1-9");
-        theOwner.setEmail("dueño@test.com");
-        theOwner.setPassword("pass");
-        theOwner.setTelefono("9112233");
-        theOwner.setRol(Usuario.Rol.USUARIO);
-        theOwner.setFechaNacimiento(java.time.LocalDate.of(1990, 5, 15));
-        entityManager.persistAndFlush(theOwner);
-
         // Mascota de prueba
         Mascota mascota = new Mascota();
         mascota.setNombreMascota("Firulais");
@@ -51,7 +34,7 @@ class MascotaRepositoryTest {
         mascota.setRaza("Quiltro");
         mascota.setSexo("Macho");
         mascota.setColor("Cafe");
-        mascota.setUsuario(theOwner);
+        mascota.setUsuarioId(1);
         entityManager.persistAndFlush(mascota);
     }
 

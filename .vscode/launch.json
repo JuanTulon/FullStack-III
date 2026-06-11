@@ -2,6 +2,27 @@
     "configurations": [
         {
             "type": "java",
+            "name": "MascotasApplication",
+            "request": "launch",
+            "mainClass": "com.mascotas.mascotas.MascotasApplication",
+            "projectName": "ms-reportes"
+        },
+        {
+            "type": "java",
+            "name": "MascotasApplication",
+            "request": "launch",
+            "mainClass": "com.mascotas.mascotas.MascotasApplication",
+            "projectName": "ms-mascotas"
+        },
+        {
+            "type": "java",
+            "name": "MascotasApplication",
+            "request": "launch",
+            "mainClass": "com.mascotas.mascotas.MascotasApplication",
+            "projectName": "ms-usuarios"
+        },
+        {
+            "type": "java",
             "name": "Spring Boot-MascotasApplication<mascotas>",
             "request": "launch",
             "cwd": "${workspaceFolder}",
