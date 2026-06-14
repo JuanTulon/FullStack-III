@@ -198,7 +198,23 @@ public class ReporteService {
             dto.setNombreMascota(reporte.getMascota().getNombreMascota());
             dto.setRazaMascota(reporte.getMascota().getRaza());
         }
-        dto.setUrlsFotos(reporte.getUrlsFotos());
+
+        if (reporte.getUrlsFotos() != null && !reporte.getUrlsFotos().isEmpty()) {
+            List<String> fotosConUrlCompleta = reporte.getUrlsFotos().stream()
+                .map(nombreArchivo -> {
+                    if (org.springframework.web.context.request.RequestContextHolder.getRequestAttributes() != null) {
+                        return org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentContextPath()
+                            .path("/uploads/")
+                            .path(nombreArchivo)
+                            .toUriString();
+                    } else {
+                        return "http://localhost:8080/uploads/" + nombreArchivo;
+                    }
+                }).toList();
+            dto.setUrlsFotos(fotosConUrlCompleta);
+        } else {
+            dto.setUrlsFotos(new java.util.ArrayList<>());
+        }
 
         return dto;
     }

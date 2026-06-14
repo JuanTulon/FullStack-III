@@ -10,12 +10,14 @@ import java.util.List;
 @Repository
 public interface ReporteRepository extends JpaRepository<Reporte, Integer> {
     
-    @Query("SELECT r FROM Reporte r")
+    @Query("SELECT DISTINCT r FROM Reporte r LEFT JOIN FETCH r.urlsFotos")
     List<Reporte> findAllConDetalles();
     
-    List<Reporte> findByTipo(Reporte.TipoReporte tipo);
+    @Query("SELECT DISTINCT r FROM Reporte r LEFT JOIN FETCH r.urlsFotos WHERE r.tipo = :tipo")
+    List<Reporte> findByTipo(@Param("tipo") Reporte.TipoReporte tipo);
 
-    List<Reporte> findByTipoAndEstadoReporte(Reporte.TipoReporte tipo, Reporte.EstadoReporte estado);
+    @Query("SELECT DISTINCT r FROM Reporte r LEFT JOIN FETCH r.urlsFotos WHERE r.tipo = :tipo AND r.estadoReporte = :estado")
+    List<Reporte> findByTipoAndEstadoReporte(@Param("tipo") Reporte.TipoReporte tipo, @Param("estado") Reporte.EstadoReporte estado);
 
     @Query("SELECT COUNT(r) > 0 FROM Reporte r WHERE r.mascotaId = :mascotaId AND r.estadoReporte = :estado")
     boolean existeReporteActivoPorMascotaId(
@@ -23,5 +25,6 @@ public interface ReporteRepository extends JpaRepository<Reporte, Integer> {
         @Param("estado") Reporte.EstadoReporte estado
     );
 
-    List<Reporte> findByMascotaIdInAndTipo(List<Integer> mascotaIds, Reporte.TipoReporte tipo);
+    @Query("SELECT DISTINCT r FROM Reporte r LEFT JOIN FETCH r.urlsFotos WHERE r.mascotaId IN :mascotaIds AND r.tipo = :tipo")
+    List<Reporte> findByMascotaIdInAndTipo(@Param("mascotaIds") List<Integer> mascotaIds, @Param("tipo") Reporte.TipoReporte tipo);
 }

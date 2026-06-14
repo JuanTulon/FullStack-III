@@ -145,13 +145,6 @@ public class UsuarioService {
         usuario.setApellido2(request.getApellido2());
         usuario.setEmail(request.getEmail());
         usuario.setTelefono(request.getTelefono());
-        
-        // El email solo se cambia si es distinto y no existe otro igual
-        if (!usuario.getEmail().equals(request.getEmail()) && 
-            usuarioRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new BusinessRuleException("El nuevo correo ya está en uso.");
-        }
-        usuario.setEmail(request.getEmail());
 
         return convertirADto(usuarioRepository.save(usuario));
     }

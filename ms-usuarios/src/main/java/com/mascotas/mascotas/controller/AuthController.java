@@ -34,7 +34,7 @@ public class AuthController {
 
         // 2. Si pasa, buscamos el usuario para generar el token
         Usuario usuario = usuarioRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> new com.mascotas.mascotas.exception.ResourceNotFoundException("Usuario no encontrado con correo: " + request.getEmail()));
 
         // 3. Generar el Token JWT con claims adicionales
         java.util.Map<String, Object> extraClaims = new java.util.HashMap<>();

@@ -27,7 +27,8 @@ public class ReporteService {
     private RestTemplate restTemplate;
 
     private Integer getUsuarioIdAutenticado() {
-        Object principal = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Object principal = org.springframework.security.core.context.SecurityContextHolder.getContext()
+                .getAuthentication().getPrincipal();
         if (principal instanceof com.mascotas.mascotas.security.CustomUserDetails) {
             return ((com.mascotas.mascotas.security.CustomUserDetails) principal).getIdUsuario();
         }
@@ -38,16 +39,16 @@ public class ReporteService {
 
     public List<ReporteDTO> listarReportes() {
         return reporteRepository.findAllConDetalles()
-        .stream()
-        .map(this::convertirADto) // Convertimos a DTO para no exponer toda la info
-        .toList();
+                .stream()
+                .map(this::convertirADto) // Convertimos a DTO para no exponer toda la info
+                .toList();
     }
 
     public Optional<ReporteDTO> buscarPorId(Integer id) {
         return reporteRepository.findById(id)
-        .map(this::convertirADto); // Convertimos a DTO para no exponer toda la info
+                .map(this::convertirADto); // Convertimos a DTO para no exponer toda la info
     }
-    
+
     public List<ReporteDTO> buscarPorTipo(String tipoString) {
         if (tipoString == null || tipoString.trim().isEmpty()) {
             throw new BusinessRuleException("El parámetro de tipo de reporte es obligatorio.");
@@ -55,11 +56,12 @@ public class ReporteService {
         try {
             Reporte.TipoReporte tipoEnum = Reporte.TipoReporte.valueOf(tipoString.toUpperCase());
             return reporteRepository.findByTipo(tipoEnum)
-            .stream()
-            .map(this::convertirADto) // Convertimos a DTO para no exponer toda la info
-            .toList();
+                    .stream()
+                    .map(this::convertirADto) // Convertimos a DTO para no exponer toda la info
+                    .toList();
         } catch (IllegalArgumentException e) {
-            throw new BusinessRuleException("Tipo de reporte no válido. Las opciones son: ENCONTRADO, PERDIDO, AVISTADA.");
+            throw new BusinessRuleException(
+                    "Tipo de reporte no válido. Las opciones son: ENCONTRADO, PERDIDO, AVISTADA.");
         }
     }
 
@@ -72,12 +74,13 @@ public class ReporteService {
         }
         try {
             Reporte.TipoReporte tipoEnum = Reporte.TipoReporte.valueOf(tipoString.toUpperCase());
-            
+
             // Obtener los IDs de mascotas correspondientes a la especie desde ms-mascotas
             List<Integer> mascotaIds = new java.util.ArrayList<>();
             try {
                 String url = "http://localhost:8082/api/mascota/especie/" + especieString.toLowerCase();
-                com.mascotas.mascotas.dto.MascotaDTO[] mascotas = restTemplate.getForObject(url, com.mascotas.mascotas.dto.MascotaDTO[].class);
+                com.mascotas.mascotas.dto.MascotaDTO[] mascotas = restTemplate.getForObject(url,
+                        com.mascotas.mascotas.dto.MascotaDTO[].class);
                 if (mascotas != null) {
                     for (com.mascotas.mascotas.dto.MascotaDTO m : mascotas) {
                         mascotaIds.add(m.getIdMascota());
@@ -95,33 +98,35 @@ public class ReporteService {
             }
 
             return reporteRepository.findByMascotaIdInAndTipo(mascotaIds, tipoEnum)
-            .stream()
-            .map(this::convertirADto)
-            .toList();
+                    .stream()
+                    .map(this::convertirADto)
+                    .toList();
         } catch (IllegalArgumentException e) {
-            throw new BusinessRuleException("Especie o Tipo no válido. Especies: PERRO, GATO, OTRO. Tipos: ENCONTRADO, PERDIDO, AVISTADA.");
+            throw new BusinessRuleException(
+                    "Especie o Tipo no válido. Especies: PERRO, GATO, OTRO. Tipos: ENCONTRADO, PERDIDO, AVISTADA.");
         }
     }
 
     public List<ReporteDTO> buscarTipoYEstadoReporte(String tipo, String estado) {
-        if (tipo == null || tipo.trim().isEmpty()){
+        if (tipo == null || tipo.trim().isEmpty()) {
             throw new BusinessRuleException("El parámetro de tipo es obligatorio.");
         }
-        if (estado == null || estado.trim().isEmpty()){
+        if (estado == null || estado.trim().isEmpty()) {
             throw new BusinessRuleException("El parámetro de estado es obligatorio.");
         }
         try {
             Reporte.TipoReporte tipoEnum = Reporte.TipoReporte.valueOf(tipo.toUpperCase());
             Reporte.EstadoReporte estadoEnum = Reporte.EstadoReporte.valueOf(estado.toUpperCase());
             return reporteRepository.findByTipoAndEstadoReporte(tipoEnum, estadoEnum)
-            .stream()
-            .map(this::convertirADto)
-            .toList();
+                    .stream()
+                    .map(this::convertirADto)
+                    .toList();
         } catch (IllegalArgumentException e) {
-            throw new BusinessRuleException("Tipo de reporte no válido. Las opciones son: ENCONTRADO, PERDIDO, AVISTADA.");
+            throw new BusinessRuleException(
+                    "Tipo de reporte no válido. Las opciones son: ENCONTRADO, PERDIDO, AVISTADA.");
         }
     }
-    
+
     // --- CREACIÓN ---
 
     @Transactional
@@ -139,7 +144,7 @@ public class ReporteService {
         reporte.setLatitud(request.getLatitud());
         reporte.setLongitud(request.getLongitud());
         reporte.setUrlsFotos(request.getUrlsFotos());
-        
+
         reporte.setUsuarioId(getUsuarioIdAutenticado());
         reporte.setMascotaId(request.getMascotaId());
         reporte.setFechaReporte(LocalDateTime.now());
@@ -151,9 +156,10 @@ public class ReporteService {
     @Transactional
     public ReporteDTO actualizarReporte(Integer id, ReporteUpdateDTO request, String emailUsuario) {
         Reporte reporte = reporteRepository.findById(id)
-            .orElseThrow(()-> new ResourceNotFoundException("Reporte no encontrado con ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Reporte no encontrado con ID: " + id));
 
-        // Validación Zero Trust: comprobar que el usuario logueado es el dueño del reporte
+        // Validación Zero Trust: comprobar que el usuario logueado es el dueño del
+        // reporte
         if (!reporte.getUsuarioId().equals(getUsuarioIdAutenticado())) {
             throw new BusinessRuleException("No tienes permisos para modificar este reporte.");
         }
@@ -172,22 +178,23 @@ public class ReporteService {
     @Transactional
     public void eliminarReporte(Integer id, String emailUsuario) {
         Reporte reporte = reporteRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Reporte no encontrado con ID: " + id));
-            
-        // Validación Zero Trust: comprobar que el usuario logueado es el dueño del reporte
+                .orElseThrow(() -> new ResourceNotFoundException("Reporte no encontrado con ID: " + id));
+
+        // Validación Zero Trust: comprobar que el usuario logueado es el dueño del
+        // reporte
         if (!reporte.getUsuarioId().equals(getUsuarioIdAutenticado())) {
             throw new BusinessRuleException("No tienes permisos para eliminar este reporte.");
         }
-        
+
         reporteRepository.deleteById(id);
     }
-    
+
     private ReporteDTO convertirADto(Reporte reporte) {
         ReporteDTO dto = new ReporteDTO();
         dto.setIdReporte(reporte.getIdReporte());
         dto.setTipo(reporte.getTipo().name());
         dto.setEstado(reporte.getEstadoReporte().name());
-        dto.setFecha(reporte.getFechaReporte());    
+        dto.setFecha(reporte.getFechaReporte());
         dto.setDescripcion(reporte.getDescripcion());
 
         // coordenadas
@@ -197,7 +204,25 @@ public class ReporteService {
         // IDs decoupled
         dto.setUsuarioId(reporte.getUsuarioId());
         dto.setMascotaId(reporte.getMascotaId());
-        dto.setUrlsFotos(reporte.getUrlsFotos());
+
+        if (reporte.getUrlsFotos() != null && !reporte.getUrlsFotos().isEmpty()) {
+            List<String> fotosConUrlCompleta = reporte.getUrlsFotos().stream()
+                    .map(nombreArchivo -> {
+                        if (org.springframework.web.context.request.RequestContextHolder
+                                .getRequestAttributes() != null) {
+                            return org.springframework.web.servlet.support.ServletUriComponentsBuilder
+                                    .fromCurrentContextPath()
+                                    .path("/uploads/")
+                                    .path(nombreArchivo)
+                                    .toUriString();
+                        } else {
+                            return "http://localhost:8083/uploads/" + nombreArchivo;
+                        }
+                    }).toList();
+            dto.setUrlsFotos(fotosConUrlCompleta);
+        } else {
+            dto.setUrlsFotos(new java.util.ArrayList<>());
+        }
 
         return dto;
     }
