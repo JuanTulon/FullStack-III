@@ -87,15 +87,27 @@ public class SecurityConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
+        // 1. Configuración general para la API
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of(frontendUrl)); // Inyectamos el host dinámicamente!
+        configuration.setAllowedOrigins(List.of(frontendUrl)); // Inyectamos el host dinámicamente
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         configuration.setAllowCredentials(false);
 
+        // 2. Configuración específica para las fotos (públicas)
+        CorsConfiguration uploadsConfiguration = new CorsConfiguration();
+        uploadsConfiguration.setAllowedOrigins(List.of("*")); // Permitimos que cualquier origen lea las fotos públicamente
+        uploadsConfiguration.setAllowedMethods(Arrays.asList("GET", "OPTIONS"));
+        uploadsConfiguration.setAllowedHeaders(List.of("*"));
+        uploadsConfiguration.setAllowCredentials(false);
+
+        // 3. Registrar ambas configuraciones
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
+        source.registerCorsConfiguration("/uploads/**", uploadsConfiguration); // Regla específica para fotos
+        source.registerCorsConfiguration("/**", configuration); // Regla general
+        
         return source;
     }
+
 
 }
