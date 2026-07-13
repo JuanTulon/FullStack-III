@@ -180,9 +180,17 @@ public class ReporteService {
         Reporte reporte = reporteRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Reporte no encontrado con ID: " + id));
 
-        // Validación Zero Trust: comprobar que el usuario logueado es el dueño del
-        // reporte
-        if (!reporte.getUsuarioId().equals(getUsuarioIdAutenticado())) {
+        // Obtener el principal y verificar si es administrador
+        Object principal = org.springframework.security.core.context.SecurityContextHolder.getContext()
+                .getAuthentication().getPrincipal();
+        boolean isAdmin = false;
+        if (principal instanceof org.springframework.security.core.userdetails.UserDetails) {
+            isAdmin = ((org.springframework.security.core.userdetails.UserDetails) principal).getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        }
+
+        // Validación Zero Trust: comprobar que el usuario logueado es el dueño del reporte O es ADMIN
+        if (!reporte.getUsuarioId().equals(getUsuarioIdAutenticado()) && !isAdmin) {
             throw new BusinessRuleException("No tienes permisos para eliminar este reporte.");
         }
 
