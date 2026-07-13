@@ -4,7 +4,6 @@ import com.mascotas.mascotas.dto.ReporteCreateDTO;
 import com.mascotas.mascotas.dto.ReporteDTO;
 import com.mascotas.mascotas.dto.ReporteUpdateDTO;
 import com.mascotas.mascotas.service.ReporteService;
-import com.mascotas.mascotas.service.S3Service;
 import java.security.Principal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -36,9 +35,6 @@ public class ReporteController {
     
     @Autowired
     private ReporteService reporteService;
-
-    @Autowired
-    private S3Service s3Service;
 
     //LISTAR reportes
     @Operation(summary = "Listar todos los reportes", responses = {
@@ -102,20 +98,29 @@ public class ReporteController {
             return ResponseEntity.badRequest().build(); // O lanza tu BusinessRuleException
         }
 
-        // 2. Guardar las fotos en AWS S3
-        List<String> urlsFotos = new java.util.ArrayList<>();
+        // 2. Guardar las fotos físicamente
+        List<String> nombresArchivos = new java.util.ArrayList<>();
         try {
+            Path directorioImagenes = Paths.get("uploads");
+            if (!Files.exists(directorioImagenes)) {
+                Files.createDirectories(directorioImagenes);
+            }
             for (MultipartFile foto : fotos) {
                 if (foto != null && !foto.isEmpty()) {
-                    String urlFoto = s3Service.uploadFile(foto);
-                    urlsFotos.add(urlFoto);
+                    // Generar nombre único
+                    String nombreArchivo = UUID.randomUUID().toString() + "_" + foto.getOriginalFilename();
+                    Path rutaCompleta = directorioImagenes.resolve(nombreArchivo);
+                    
+                    // Copiar archivo a la carpeta
+                    Files.copy(foto.getInputStream(), rutaCompleta);
+                    nombresArchivos.add(nombreArchivo);
                 }
             }
-            // 3. Inyectar las URLs de las fotos en el DTO antes de pasarlo al Service
-            request.setUrlsFotos(urlsFotos);
+            // 3. Inyectar los nombres de las fotos en el DTO antes de pasarlo al Service
+            request.setUrlsFotos(nombresArchivos);
 
         } catch (Exception e) {
-            throw new RuntimeException("Error al guardar las fotos en AWS S3", e);
+            throw new RuntimeException("Error al guardar las fotos en el servidor", e);
         }
 
         // 4. Llamar al servicio normal (asumiendo que tu servicio extrae el email del principal)

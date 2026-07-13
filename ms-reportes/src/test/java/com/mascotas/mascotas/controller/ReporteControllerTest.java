@@ -34,9 +34,6 @@ public class ReporteControllerTest {
     private ReporteService reporteService;
 
     @MockBean
-    private com.mascotas.mascotas.service.S3Service s3Service;
-
-    @MockBean
     private com.mascotas.mascotas.security.JwtService jwtService;
     
     @MockBean
@@ -78,9 +75,6 @@ public class ReporteControllerTest {
         ReporteDTO response = new ReporteDTO();
         response.setIdReporte(100);
         response.setTipo("PERDIDO");
-
-        when(s3Service.uploadFile(org.mockito.ArgumentMatchers.any()))
-                .thenReturn("https://my-bucket.s3.amazonaws.com/perrito.jpg");
 
         when(reporteService.registrarReporte(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.anyString()))
                 .thenReturn(response);
