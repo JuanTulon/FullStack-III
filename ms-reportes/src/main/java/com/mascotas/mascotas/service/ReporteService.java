@@ -208,6 +208,9 @@ public class ReporteService {
         if (reporte.getUrlsFotos() != null && !reporte.getUrlsFotos().isEmpty()) {
             List<String> fotosConUrlCompleta = reporte.getUrlsFotos().stream()
                     .map(nombreArchivo -> {
+                        if (nombreArchivo.startsWith("http://") || nombreArchivo.startsWith("https://")) {
+                            return nombreArchivo;
+                        }
                         if (org.springframework.web.context.request.RequestContextHolder
                                 .getRequestAttributes() != null) {
                             return org.springframework.web.servlet.support.ServletUriComponentsBuilder

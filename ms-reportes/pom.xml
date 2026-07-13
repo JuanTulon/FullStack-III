@@ -14,7 +14,8 @@
     <description>Microservicio principal de Mascotas y Usuarios</description>
     <properties>
         <java.version>21</java.version>
-        <spring-cloud.version>2023.0.1</spring-cloud.version> 
+        <spring-cloud.version>2023.0.1</spring-cloud.version>
+        <lombok.version>1.18.40</lombok.version>
 	</properties>
     <dependencies>
         <dependency>
@@ -93,6 +94,11 @@
             <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>s3</artifactId>
+            <version>2.25.15</version>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>
@@ -109,6 +115,20 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
